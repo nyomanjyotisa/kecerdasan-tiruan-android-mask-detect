@@ -1,21 +1,10 @@
 package com.example.aps1
 
-import android.content.ContentUris
-import android.content.Intent
 import android.graphics.*
-import android.graphics.Paint.Align
-import android.graphics.drawable.BitmapDrawable
-import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.graphics.createBitmap
-import com.esafirm.imagepicker.features.ImagePicker
-import com.esafirm.imagepicker.model.Image
-import com.example.facemaskdetection.Box
-import com.example.facemaskdetection.OverlayView
+import id.jyotisa.deteksimasker.Box
 import com.google.android.gms.vision.Frame
 import com.google.android.gms.vision.face.FaceDetector
 import kotlinx.android.synthetic.main.activity_main.*
@@ -29,8 +18,6 @@ import org.tensorflow.lite.support.image.ops.ResizeWithCropOrPadOp
 import org.tensorflow.lite.support.label.TensorLabel
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import java.io.ByteArrayOutputStream
-import java.lang.Float.min
-import kotlin.math.ceil
 
 
 class MainActivity : AppCompatActivity() {
@@ -68,7 +55,7 @@ class MainActivity : AppCompatActivity() {
                 overlayView.boundingBox = processBitmap(bitmap, faceDetector)
                 overlayView.invalidate()
             } else {
-                Toast.makeText(this, "Camera Data not Supported", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Kamera anda tidak mendukung", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -110,7 +97,16 @@ class MainActivity : AppCompatActivity() {
             } else {
                 predictionn = "Without Mask"
             }
-            boundingBoxList.add(Box(RectF(left, top, right, bottom), predictionn, with>without))
+            boundingBoxList.add(
+                Box(
+                    RectF(
+                        left,
+                        top,
+                        right,
+                        bottom
+                    ), predictionn, with > without
+                )
+            )
         }
         return boundingBoxList
     }
@@ -131,7 +127,7 @@ class MainActivity : AppCompatActivity() {
         var inputImageBuffer = TensorImage(imageDataType)
         val outputBuffer = TensorBuffer.createFixedSize(outputShape, outputDataType) 
 
-        // preprocess
+        // preprocessing
         val cropSize = kotlin.math.min(input.width, input.height)
         val imageProcessor = ImageProcessor.Builder()
             .add(ResizeWithCropOrPadOp(cropSize, cropSize)) 

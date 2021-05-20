@@ -1,4 +1,4 @@
-package com.example.facemaskdetection
+package id.jyotisa.deteksimasker
 
 import android.graphics.RectF
 

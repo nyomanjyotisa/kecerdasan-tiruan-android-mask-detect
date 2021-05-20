@@ -1,4 +1,4 @@
-package com.example.facemaskdetection
+package id.example.facemaskdetection
 
 import org.junit.Test
 
