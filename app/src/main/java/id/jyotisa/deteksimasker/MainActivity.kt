@@ -2,6 +2,7 @@ package com.example.aps1
 
 import android.graphics.*
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import id.jyotisa.deteksimasker.Box
@@ -18,6 +19,7 @@ import org.tensorflow.lite.support.image.ops.ResizeWithCropOrPadOp
 import org.tensorflow.lite.support.label.TensorLabel
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import java.io.ByteArrayOutputStream
+import android.graphics.YuvImage as YuvImage1
 
 
 class MainActivity : AppCompatActivity() {
@@ -31,11 +33,12 @@ class MainActivity : AppCompatActivity() {
 
         cameraView.addFrameProcessor{ frame ->
             val matrix = Matrix()
+            Log.v("status", "start");
             matrix.setRotate(frame.rotationToUser.toFloat())
 
             if (frame.dataClass === ByteArray::class.java){
                 val out = ByteArrayOutputStream()
-                val yuvImage = YuvImage(
+                val yuvImage = YuvImage1(
                     frame.getData(),
                     ImageFormat.NV21,
                     frame.size.width,
@@ -61,12 +64,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun processBitmap(bitmap: Bitmap, faceDetector: FaceDetector): MutableList<Box>{
+        Log.v("status", "start bitmap");
         val boundingBoxList = mutableListOf<Box>()
 
         // Detect the faces
         val frame = Frame.Builder().setBitmap(bitmap).build()
+        Log.v("status", "detect frame");
         val faces = faceDetector.detect(frame)
-
+        Log.v("status", "selesai detect frame");
         // Mark out the identified face
         for (i in 0 until faces.size()) {
             val thisFace = faces.valueAt(i)
@@ -87,16 +92,21 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     thisFace.height.toInt()
                 })
+            Log.v("status", "start predict");
             val label = predict(bitmapCropped)
+            Log.v("status", "selesai predict");
             var predictionn = ""
             val with = label["WithMask"]?: 0F
             val without = label["WithoutMask"]?: 0F
 
             if (with > without){
                 predictionn = "With Mask"
+                Log.v("status predict", "mask");
             } else {
                 predictionn = "Without Mask"
+                Log.v("status predict", "no mask");
             }
+
             boundingBoxList.add(
                 Box(
                     RectF(
